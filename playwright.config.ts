@@ -39,6 +39,9 @@ expect: {
     /* Base URL to use in actions like `await page.goto('')`. */
      baseURL: 'http://localhost:5173',
 
+    /* Chrome headed localmente para debug; headless no CI (docs/prompts/prompt-qa-playwright-automator.md). */
+    headless: !!process.env.CI,
+
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on',
 

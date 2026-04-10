@@ -9,3 +9,4 @@ export class LandingPage{
         await expect(title).toContainText('Velô Sprint')
     }
 }
+

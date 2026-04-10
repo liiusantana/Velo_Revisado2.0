@@ -1,7 +1,7 @@
-import { test, expect } from '@playwright/test'
-import { generateOrderCode } from '../support/helpers'
+import { test, expect } from '../../../../support/fixtures'
+import { generateOrderCode } from '../../../../support/helpers'
 //import { searchOrder } from '../support/helpers'  -> NÃ£o preciso importar novamente pq jÃ¡ tinha uma linha acima fazendo isso, logo passaria a funÃ§Ã£o por virgula.
-import {OrderLockupPage } from '../support/pages/OrderLockupPageOld' 
+import { OrderDetails } from '../../../../support/actions/orderLockupActions'
 
 // AAA - Arrange, Act, Assert - PadrÃ£o de teste do playwright (PreparaÃ§Ã£o, AÃ§Ã£o, VerificaÃ§Ã£o)
 test.describe('Consultar Pedido', () => {
@@ -21,22 +21,19 @@ test.describe('Consultar Pedido', () => {
   })
   */
 
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ app }) => {
     console.log('beforeEach: roda antes de cada teste')
-    //Arrange
-    await page.goto('http://localhost:5173/')
-    //Checkpoint
-    await expect(page.getByTestId('hero-section').getByRole('heading')).toContainText('Velô Sprint')
-    await page.getByRole('link', { name: 'Consultar Pedido' }).click()
-    //Checkpoint
-    await expect(page.getByRole('heading')).toContainText('Consultar Pedido')
+    // Arrange
+    await app.landing.goto()
+    await app.navbar.openOrderLookup()
+    await app.orderLockup.validatePageLoaded()
   })
 
-  test('Deve consultar um pedido aprovado', async ({ page }) => {
+  test('Deve consultar um pedido aprovado', async ({ app, page }) => {
 
     // Test Data 
     //const order = 'VLO-KSP8V3'
-    const order = {
+    const order: OrderDetails = {
       number: 'VLO-KSP8V3',
       status: 'APROVADO',
       color: 'Midnight Black',
@@ -56,8 +53,7 @@ test.describe('Consultar Pedido', () => {
     //await searchOrder(page, order.number)
 
     //Act PageObject
-    const orderLockupPage = new OrderLockupPage(page)
-    await orderLockupPage.searchOrder(order.number)
+    await app.orderLockup.searchOrder(order.number)
 
     //Assert
     await expect(page.getByTestId(`order-result-${order.number}`)).toMatchAriaSnapshot(`
@@ -114,13 +110,13 @@ test.describe('Consultar Pedido', () => {
 
   })
 
-  test('Deve consultar um pedido reprovado', async ({ page }) => {
+  test('Deve consultar um pedido reprovado', async ({ app, page }) => {
 
     // Test Data 
     // const order = 'VLO-R9RU6F'
-    const order = {
+    const order: OrderDetails = {
       number: 'VLO-R9RU6F',
-      status: 'REPROVADO',
+      status: 'REPROVADO' as const,
       color: 'Midnight Black',
       wheels: 'sport Wheels',
       customer: {
@@ -131,8 +127,7 @@ test.describe('Consultar Pedido', () => {
     }
 
     //Act
-    const orderLockupPage = new OrderLockupPage(page)
-    await orderLockupPage.searchOrder(order.number)
+    await app.orderLockup.searchOrder(order.number)
 
     //Assert
     await expect(page.getByTestId(`order-result-${order.number}`)).toMatchAriaSnapshot(`
@@ -190,13 +185,13 @@ test.describe('Consultar Pedido', () => {
 
   })
 
-  test('Deve consultar um pedido em análise', async ({ page }) => {
+  test('Deve consultar um pedido em análise', async ({ app, page }) => {
 
     // Test Data 
     // const order = 'VLO-R9RU6F'
-    const order = {
+    const order: OrderDetails = {
       number: 'VLO-89K26W',
-      status: 'EM_ANALISE',
+      status: 'EM_ANALISE' as const,
       color: 'Lunar White',
       wheels: 'aero Wheels',
       customer: {
@@ -207,8 +202,7 @@ test.describe('Consultar Pedido', () => {
     }
 
     //Act
-    const orderLockupPage = new OrderLockupPage(page)
-    await orderLockupPage.searchOrder(order.number)
+    await app.orderLockup.searchOrder(order.number)
 
     //Assert
     await expect(page.getByTestId(`order-result-${order.number}`)).toMatchAriaSnapshot(`
@@ -251,14 +245,13 @@ test.describe('Consultar Pedido', () => {
 
   })
 
-  test('Deve exibir mensagem quando o pedido não é encontrado', async ({ page }) => {
+  test('Deve exibir mensagem quando o pedido não é encontrado', async ({ app, page }) => {
 
     // Test Data 
     const order = generateOrderCode()
 
     //Act
-    const orderLockupPage = new OrderLockupPage(page)
-    await orderLockupPage.searchOrder(order)
+    await app.orderLockup.searchOrder(order)
 
     //Assert
     await expect(page.locator('#root')).toMatchAriaSnapshot(`

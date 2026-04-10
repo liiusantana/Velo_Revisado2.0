@@ -8,3 +8,4 @@ export class OrderLockupPage {
         await this.page.getByRole('button', { name: 'Buscar Pedido' }).click()
     }
 }
+
