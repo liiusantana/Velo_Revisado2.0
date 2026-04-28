@@ -10,46 +10,52 @@ import { test, expect } from '../support/fixtures'
  * Preço base inicial: R$ 40.000,00 (Cor padrão + Rodas "Aero").
  */
 test.describe('Configuração do Veículo', () => {
-  test.beforeEach(async ({ page, app }) => {
-    await page.goto('/configure')
+  test.beforeEach(async ({ app }) => {
+    await app.configurator.open()
     await app.configurator.ensureBaseState()
   })
 
-  test('deve manter o preço base ao alterar apenas a cor do veículo', async ({ page }) => {
+  test('deve manter o preço base ao alterar apenas a cor do veículo', async ({ app }) => {
+    const { elements, expectTotalPrice, selectColor } = app.configurator
+
     // Arrange
-    await expect(page.getByRole('heading', { name: 'Velô Sprint' })).toBeVisible()
+    await expect(elements.headingVeloSprint).toBeVisible()
 
     // Act + Assert — preço inicial
-    await expect(page.getByText('R$ 40.000,00', { exact: true })).toBeVisible()
+    await expectTotalPrice('R$ 40.000,00')
 
     // Act — cor diferente
-    await page.getByRole('button', { name: 'Midnight Black' }).click()
+    await selectColor('Midnight Black')
 
     // Assert — preço inalterado (checkpoint pós-ação)
-    await expect(page.getByText('R$ 40.000,00', { exact: true })).toBeVisible()
+    await expectTotalPrice('R$ 40.000,00')
 
-    const carPreview = page.getByRole('img', { name: /Velô Sprint - midnight-black with aero wheels/i })
-    await expect(carPreview).toBeVisible()
-    await expect(carPreview).toHaveAttribute('src', '/src/assets/midnight-black-aero-wheels.png')
+    await expect(elements.previewMidnightBlackAero).toBeVisible()
+    await expect(elements.previewMidnightBlackAero).toHaveAttribute(
+      'src',
+      '/src/assets/midnight-black-aero-wheels.png',
+    )
   })
 
-  test('deve atualizar o preço corretamente ao alterar as rodas', async ({ page }) => {
+  test('deve atualizar o preço corretamente ao alterar as rodas', async ({ app }) => {
+    const { elements, expectTotalPrice, selectWheels, expectSportPreviewVisible } = app.configurator
+
     // Arrange
-    await expect(page.getByRole('heading', { name: 'Velô Sprint' })).toBeVisible()
-    await expect(page.getByText('R$ 40.000,00', { exact: true })).toBeVisible()
+    await expect(elements.headingVeloSprint).toBeVisible()
+    await expectTotalPrice('R$ 40.000,00')
 
     // Act — Sport Wheels
-    await page.getByRole('button', { name: /Sport Wheels/ }).click()
+    await selectWheels('Sport Wheels')
 
     // Assert — checkpoint preço + preview
-    await expect(page.getByText('R$ 42.000,00', { exact: true })).toBeVisible()
-    await expect(page.getByRole('img', { name: /sport/i })).toBeVisible()
+    await expectTotalPrice('R$ 42.000,00')
+    await expectSportPreviewVisible()
 
     // Act — volta Aero
-    await page.getByRole('button', { name: /Aero Wheels/ }).click()
+    await selectWheels('Aero Wheels')
 
     // Assert — estado final
-    await expect(page.getByText('R$ 40.000,00', { exact: true })).toBeVisible()
+    await expectTotalPrice('R$ 40.000,00')
   })
 })
 
@@ -62,41 +68,38 @@ test.describe('Configuração do Veículo', () => {
  * Pré-condições: Configurador com preço base R$ 40.000,00 (sem opcionais, rodas Aero).
  */
 test.describe('CT03 - Opcionais e checkout', () => {
-  test.beforeEach(async ({ page, app }) => {
-    await page.goto('/configure')
+  test.beforeEach(async ({ app }) => {
+    await app.configurator.open()
     await app.configurator.ensureBaseState()
   })
 
-  test('deve atualizar preço com opcionais, voltar ao base e persistir no pedido', async ({
-    page,
-    app,
-  }) => {
+  test('deve atualizar preço com opcionais, voltar ao base e persistir no pedido', async ({ app }) => {
+    const { elements, expectTotalPrice } = app.configurator
+
     // Arrange
-    const precisionPark = page.getByRole('checkbox', { name: /Precision Park/ })
-    const fluxCapacitor = page.getByRole('checkbox', { name: /Flux Capacitor/ })
-    await expect(page.getByRole('heading', { name: 'Velô Sprint' })).toBeVisible()
-    await expect(precisionPark).toBeVisible()
-    await expect(fluxCapacitor).toBeVisible()
-    await expect(page.getByText('R$ 40.000,00', { exact: true })).toBeVisible()
+    await expect(elements.headingVeloSprint).toBeVisible()
+    await expect(elements.precisionPark).toBeVisible()
+    await expect(elements.fluxCapacitor).toBeVisible()
+    await expectTotalPrice('R$ 40.000,00')
 
     // Act + Assert — Precision Park
-    await precisionPark.click()
-    await expect(page.getByText('R$ 45.500,00', { exact: true })).toBeVisible()
+    await elements.precisionPark.click()
+    await expectTotalPrice('R$ 45.500,00')
 
     // Act + Assert — Flux Capacitor
-    await fluxCapacitor.click()
-    await expect(page.getByText('R$ 50.500,00', { exact: true })).toBeVisible()
+    await elements.fluxCapacitor.click()
+    await expectTotalPrice('R$ 50.500,00')
 
     // Act + Assert — desmarcar ambos
-    await precisionPark.click()
-    await expect(page.getByText('R$ 45.000,00', { exact: true })).toBeVisible()
-    await fluxCapacitor.click()
-    await expect(page.getByText('R$ 40.000,00', { exact: true })).toBeVisible()
+    await elements.precisionPark.click()
+    await expectTotalPrice('R$ 45.000,00')
+    await elements.fluxCapacitor.click()
+    await expectTotalPrice('R$ 40.000,00')
 
-    // Act — checkout
-    await app.configurator.proceedToCheckout()
+    // Act — configurador: enviar configuração para o pedido
+    await app.configurator.finishConfiguration()
 
-    // Assert — estado final na página de pedido
-    await app.configurator.expectOrderSummaryTotal('R$ 40.000,00')
+    // Assert — página de checkout / pedido
+    await app.checkout.expectSummaryTotal('R$ 40.000,00')
   })
 })

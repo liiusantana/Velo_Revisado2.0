@@ -1,15 +1,20 @@
 import { expect, test } from '../support/fixtures'
 import { generateOrderCode } from '../support/helpers'
 import { OrderDetails } from '../support/actions/orderLockupActions'
+import { seedTestOrders, cleanupTestOrders } from '../support/database/orderRepository'
 
 test.describe('Consulta de Pedido', () => {
+  test.beforeAll(async () => {
+    await seedTestOrders()
+  })
+
   test.beforeEach(async ({ app }) => {
     await app.orderLockup.open()
   })
 
   test('Deve consultar um pedido aprovado', async ({ app }) => {
     const order: OrderDetails = {
-      number: 'VLO-KSP8V3',
+      number: 'VLO-AY2HRQ',
       status: 'APROVADO',
       color: 'Midnight Black',
       wheels: 'sport Wheels',

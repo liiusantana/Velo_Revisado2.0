@@ -3,7 +3,23 @@ import { expect, type Page } from '@playwright/test'
 export type WheelsOption = 'Sport Wheels' | 'Aero Wheels'
 
 export function createConfiguratorActions(page: Page) {
+  const elements = {
+    headingVeloSprint: page.getByRole('heading', { name: 'Velô Sprint' }),
+    colorButton: (name: string) => page.getByRole('button', { name }),
+    sportWheels: page.getByRole('button', { name: /Sport Wheels/ }),
+    aeroWheels: page.getByRole('button', { name: /Aero Wheels/ }),
+    precisionPark: page.getByRole('checkbox', { name: /Precision Park/ }),
+    fluxCapacitor: page.getByRole('checkbox', { name: /Flux Capacitor/ }),
+    /** CTA do configurador que envia a configuração para a página de pedido (`/order`). */
+    monteOSeu: page.getByRole('button', { name: 'Monte o Seu' }),
+    previewMidnightBlackAero: page.getByRole('img', {
+      name: /Velô Sprint - midnight-black with aero wheels/i,
+    }),
+  }
+
   return {
+    elements,
+
     async open(): Promise<void> {
       await page.goto('/configure')
     },
@@ -12,39 +28,31 @@ export function createConfiguratorActions(page: Page) {
      * Garante rodas Aero, sem opcionais e preço base (checkpoint no estado inicial).
      */
     async ensureBaseState(): Promise<void> {
-      await page.getByRole('button', { name: /Aero Wheels/ }).click()
-      const precisionPark = page.getByRole('checkbox', { name: /Precision Park/ })
-      const fluxCapacitor = page.getByRole('checkbox', { name: /Flux Capacitor/ })
-      if (await precisionPark.isChecked()) await precisionPark.click()
-      if (await fluxCapacitor.isChecked()) await fluxCapacitor.click()
+      await elements.aeroWheels.click()
+      if (await elements.precisionPark.isChecked()) await elements.precisionPark.click()
+      if (await elements.fluxCapacitor.isChecked()) await elements.fluxCapacitor.click()
 
-      await expect(precisionPark).toBeVisible()
-      await expect(fluxCapacitor).toBeVisible()
+      await expect(elements.precisionPark).toBeVisible()
+      await expect(elements.fluxCapacitor).toBeVisible()
       await expect(page.getByText('R$ 40.000,00', { exact: true })).toBeVisible()
     },
 
-    async proceedToCheckout(): Promise<void> {
-      const checkout = page.getByRole('button', { name: 'Monte o Seu' })
-      await expect(checkout).toBeVisible()
-      await expect(checkout).toBeEnabled()
-      await checkout.click()
-    },
-
     /**
-     * Confirma rota de pedido e total no painel Resumo (escopo pelo heading acessível).
+     * Avança da tela de configuração para o pedido (rota `/order`).
      */
-    async expectOrderSummaryTotal(expected: string): Promise<void> {
-      await expect(page).toHaveURL(/\/order/)
-      const resumoPanel = page.getByRole('heading', { name: 'Resumo' }).locator('..')
-      await expect(resumoPanel.getByText(expected, { exact: true })).toBeVisible()
+    async finishConfiguration(): Promise<void> {
+      await expect(elements.monteOSeu).toBeVisible()
+      await expect(elements.monteOSeu).toBeEnabled()
+      await elements.monteOSeu.click()
     },
 
     async selectColor(colorName: string): Promise<void> {
-      await page.getByRole('button', { name: colorName }).click()
+      await elements.colorButton(colorName).click()
     },
 
     async selectWheels(wheels: WheelsOption): Promise<void> {
-      await page.getByRole('button', { name: new RegExp(wheels) }).click()
+      const button = wheels === 'Sport Wheels' ? elements.sportWheels : elements.aeroWheels
+      await button.click()
     },
 
     async expectTotalPrice(price: string): Promise<void> {
