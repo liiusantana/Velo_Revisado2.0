@@ -3,7 +3,7 @@ import { db } from './index'
 export const orderFixtures = [
   {
     id: '1fa137eb-00e9-4e9a-acde-ef0902433501',
-    order_number: 'VLO-AY2HRQ',
+    order_number: 'VLO-SE4R01',
     color: 'midnight-black',
     wheel_type: 'sport',
     customer_name: 'Livia Anjos',
@@ -17,7 +17,7 @@ export const orderFixtures = [
   },
   {
     id: '1fa137eb-00e9-4e9a-acde-ef0902433502',
-    order_number: 'VLO-R9RU6F',
+    order_number: 'VLO-SE4R02',
     color: 'midnight-black',
     wheel_type: 'sport',
     customer_name: 'Maria Chiquinha',
@@ -31,7 +31,7 @@ export const orderFixtures = [
   },
   {
     id: '1fa137eb-00e9-4e9a-acde-ef0902433503',
-    order_number: 'VLO-89K26W',
+    order_number: 'VLO-SE4R03',
     color: 'lunar-white',
     wheel_type: 'aero',
     customer_name: 'Hermione Granger',
@@ -58,5 +58,12 @@ export async function cleanupTestOrders() {
   await db
     .deleteFrom('orders')
     .where('order_number', 'in', orderNumbers)
+    .execute()
+}
+
+export async function deleteOrderByDocument(document: string) {
+  await db
+    .deleteFrom('orders')
+    .where('customer_cpf', '=', document)
     .execute()
 }

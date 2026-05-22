@@ -1,0 +1,56 @@
+{
+  "aprovado": {
+    "number": "VLO-SE4R01",
+    "status": "APROVADO",
+    "color": "Midnight Black",
+    "wheels": "sport Wheels",
+    "customer": {
+      "name": "Livia Anjos",
+      "email": "lsa@hotmail.com",
+      "document": "836.054.150-75",
+      "phone": "(11) 99999-9999"
+    },
+    "payment": "À Vista",
+    "total_price": "40000"
+  },
+  "reprovado": {
+    "number": "VLO-SE4R02",
+    "status": "REPROVADO",
+    "color": "Midnight Black",
+    "wheels": "sport Wheels",
+    "customer": {
+      "name": "Maria Chiquinha",
+      "email": "chiquinha@teste.com.br",
+      "document": "836.054.150-75",
+      "phone": "(11) 99999-9999"
+    },
+    "payment": "À Vista",
+    "total_price": "40000"
+  },
+  "emAnalise": {
+    "number": "VLO-SE4R03",
+    "status": "EM_ANALISE",
+    "color": "Lunar White",
+    "wheels": "aero Wheels",
+    "customer": {
+      "name": "Hermione Granger",
+      "email": "leviosaaa@teste.com",
+      "document": "836.054.150-75",
+      "phone": "(11) 99999-9999"
+    },
+    "payment": "À Vista",
+    "total_price": "40000"
+  },
+  "novoPedido": {
+    "customer": {
+      "name": "João",
+      "lastname": "Silva",
+      "email": "joao.silva@example.com",
+      "phone": "(11) 98765-4321",
+      "document": "529.982.247-25"
+    },
+    "store": "Velô Paulista - Av. Paulista, 1000",
+    "paymentMethod": "À Vista",
+    "totalPrice": "R$ 40.000,00"
+  }
+}

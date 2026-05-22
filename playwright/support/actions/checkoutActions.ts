@@ -1,21 +1,60 @@
-import { expect, type Page } from '@playwright/test'
+import { Page, expect } from '@playwright/test'
 
-/**
- * Ações e elementos da página de checkout / pedido (`/order`).
- * A navegação até aqui parte do configurador (`continueToOrder` em configuratorActions).
- */
 export function createCheckoutActions(page: Page) {
-  const elements = {
-    resumoHeading: page.getByRole('heading', { name: 'Resumo' }),
+
+  const terms = page.getByTestId('checkout-terms')
+
+
+  const alerts = {
+    name: page.getByTestId('checkout-name-error'),
+    lastname: page.getByTestId('checkout-lastname-error'),
+    email: page.getByTestId('checkout-email-error'),
+    phone: page.getByTestId('checkout-phone-error'),
+    document: page.getByTestId('checkout-document-error'),
+    store: page.getByTestId('checkout-store-error'),
+    terms: page.getByTestId('checkout-terms-error'),
   }
 
   return {
-    elements,
 
-    async expectSummaryTotal(expected: string): Promise<void> {
-      await expect(page).toHaveURL(/\/order/)
-      const resumoPanel = elements.resumoHeading.locator('..')
-      await expect(resumoPanel.getByText(expected, { exact: true })).toBeVisible()
+    elements: {
+      terms,
+      alerts
+    },
+
+    async expectLoaded() {
+      await expect(page.getByRole('heading', { name: 'Finalizar Pedido' })).toBeVisible()
+    },
+
+    async expectSummaryTotal(price: string) {
+      await expect(page.getByTestId('summary-total-price')).toHaveText(price)
+    },
+
+    async fillCustomerData(data: {
+      name: string
+      lastname: string
+      email: string
+      phone: string
+      document: string
+    }) {
+      await page.getByTestId('checkout-name').fill(data.name)
+      await page.getByTestId('checkout-lastname').fill(data.lastname)
+      await page.getByTestId('checkout-email').fill(data.email)
+      await page.getByTestId('checkout-phone').fill(data.phone)
+      await page.getByTestId('checkout-document').fill(data.document)
+    },
+
+    async selectStore(storeName: string) {
+      await page.getByTestId('checkout-store').click()
+      await page.getByRole('option', { name: storeName }).click()
+    },
+
+    async acceptTerms() {
+      await terms.check()
+    },
+
+    async submit() {
+      await page.getByRole('button', { name: 'Confirmar Pedido' }).click()
     },
   }
 }

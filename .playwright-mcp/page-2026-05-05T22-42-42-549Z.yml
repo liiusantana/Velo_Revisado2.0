@@ -1,0 +1,35 @@
+- generic [ref=e2]:
+  - region "Notifications (F8)":
+    - list
+  - region "Notifications alt+T"
+  - generic [ref=e163]:
+    - link "Velô" [ref=e164] [cursor=pointer]:
+      - /url: /
+      - img "Velô" [ref=e165]
+    - generic [ref=e166]:
+      - img [ref=e169]
+      - generic [ref=e172]:
+        - heading "Pedido Aprovado!" [level=1] [ref=e173]
+        - paragraph [ref=e174]: Seu pedido foi processado com sucesso. Em breve entraremos em contato.
+      - generic [ref=e176]:
+        - img "Velô Sprint" [ref=e178]
+        - generic [ref=e179]:
+          - heading "Velô Sprint" [level=3] [ref=e180]
+          - paragraph [ref=e181]: Midnight Black • Interior cream • aero wheels
+          - paragraph [ref=e182]: R$ 40.000,00
+      - generic [ref=e183]:
+        - generic [ref=e184]:
+          - paragraph [ref=e185]: Número do Pedido
+          - paragraph [ref=e186]: VLO-RJZA79
+        - generic [ref=e187]:
+          - paragraph [ref=e188]: Cliente
+          - paragraph [ref=e189]: João Silva
+        - generic [ref=e190]:
+          - paragraph [ref=e191]: Email
+          - paragraph [ref=e192]: joao@email.com
+        - generic [ref=e193]:
+          - paragraph [ref=e194]: Loja de Retirada
+          - paragraph [ref=e195]: Velô Paulista - Av. Paulista, 1000
+      - generic [ref=e196]:
+        - button "Consultar Pedido" [ref=e197] [cursor=pointer]
+        - button "Configurar Outro" [ref=e198] [cursor=pointer]

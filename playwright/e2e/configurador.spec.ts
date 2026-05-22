@@ -99,6 +99,7 @@ test.describe('CT03 - Opcionais e checkout', () => {
     // Act — configurador: enviar configuração para o pedido
     await app.configurator.finishConfiguration()
 
+
     // Assert — página de checkout / pedido
     await app.checkout.expectSummaryTotal('R$ 40.000,00')
   })

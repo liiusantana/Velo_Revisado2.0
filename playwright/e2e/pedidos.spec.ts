@@ -2,6 +2,7 @@ import { expect, test } from '../support/fixtures'
 import { generateOrderCode } from '../support/helpers'
 import { OrderDetails } from '../support/actions/orderLockupActions'
 import { seedTestOrders, cleanupTestOrders } from '../support/database/orderRepository'
+import testData from '../support/fixture/orders.json' with { type: 'json' }
 
 test.describe('Consulta de Pedido', () => {
   test.beforeAll(async () => {
@@ -13,18 +14,7 @@ test.describe('Consulta de Pedido', () => {
   })
 
   test('Deve consultar um pedido aprovado', async ({ app }) => {
-    const order: OrderDetails = {
-      number: 'VLO-AY2HRQ',
-      status: 'APROVADO',
-      color: 'Midnight Black',
-      wheels: 'sport Wheels',
-      customer: {
-        name: 'Livia Anjos',
-        email: 'lsa@hotmail.com',
-      },
-      payment: 'À Vista',
-    }
-
+    const order = testData.aprovado as OrderDetails
 
     await app.orderLockup.searchOrder(order.number)
     await app.orderLockup.validateOrderDetails(order)
@@ -33,17 +23,7 @@ test.describe('Consulta de Pedido', () => {
   })
 
   test('Deve consultar um pedido reprovado', async ({ app }) => {
-    const order: OrderDetails = {
-      number: 'VLO-R9RU6F',
-      status: 'REPROVADO' as const,
-      color: 'Midnight Black',
-      wheels: 'sport Wheels',
-      customer: {
-        name: 'Maria Chiquinha',
-        email: 'chiquinha@teste.com.br',
-      },
-      payment: 'À Vista',
-    }
+    const order = testData.reprovado as OrderDetails
 
     await app.orderLockup.searchOrder(order.number)
     await app.orderLockup.validateOrderDetails(order)
@@ -51,17 +31,7 @@ test.describe('Consulta de Pedido', () => {
   })
 
   test('Deve consultar um pedido em analise', async ({ app }) => {
-    const order: OrderDetails = {
-      number: 'VLO-89K26W',
-      status: 'EM_ANALISE' as const,
-      color: 'Lunar White',
-      wheels: 'aero Wheels',
-      customer: {
-        name: 'Hermione Granger',
-        email: 'leviosaaa@teste.com',
-      },
-      payment: 'À Vista',
-    }
+    const order = testData.emAnalise as OrderDetails
 
     await app.orderLockup.searchOrder(order.number)
     await app.orderLockup.validateOrderDetails(order)
