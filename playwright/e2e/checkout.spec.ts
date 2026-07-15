@@ -134,8 +134,7 @@ test.describe('Checkout', () => {
 
       // Arrange
       // 1. Acessar a página principal e navegar para o configurador
-      await page.goto('/')
-      await page.getByRole('link', { name: 'Configure o Seu' }).first().click()
+      await app.configurator.openFromHome()
 
       // 2. Selecionar opções padrão e ir para o checkout
       await app.configurator.ensureBaseState()
@@ -156,7 +155,7 @@ test.describe('Checkout', () => {
       await app.checkout.submit()
 
       // Assert
-      await expect(page).toHaveURL(/\/success/)
+      await app.checkout.expectSuccessPage()
       await expect(page.getByText('Pedido Aprovado!')).toBeVisible()
     })
 
@@ -175,21 +174,11 @@ test.describe('Checkout', () => {
 
       await deleteOrderByDocument(customer.document)
 
-      await page.route('**/functions/v1/credit-analysis', async route => {
-        await route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: JSON.stringify({
-            status: 'Done',
-            score: 710,
-          })
-        })
-      })
+      await app.checkout.mockCreditAnalysis(710)
 
       // Arrange
       // 1. Acessar a página principal e navegar para o configurador
-      await page.goto('/')
-      await page.getByRole('link', { name: /Configure Agora/i }).click()
+      await app.configurator.openFromHome()
 
       // 2. Selecionar opções padrão e ir para o checkout
       await app.configurator.expectTotalPrice(customer.totalPrice)
@@ -206,11 +195,11 @@ test.describe('Checkout', () => {
       await app.checkout.submit()
 
       // Assert
-      await expect(page).toHaveURL(/\/success/)
+      await app.checkout.expectSuccessPage()
       await expect(page.getByRole('heading', { name: 'Pedido Aprovado!' })).toBeVisible()
     })
 
-    test('deve registrar o pedido com status "EM ANÁLISE" se o score do CPF for entre 501 e 700 no financiamento', async ({ page, app }) => {
+    test('deve encaminhar para análise de crédito quando o score do CPF for entre 501 e 700 no financiamento', async ({ page, app }) => {
 
       const customer = {
         name: 'Carlos',
@@ -225,21 +214,11 @@ test.describe('Checkout', () => {
 
       await deleteOrderByDocument(customer.document)
 
-      await page.route('**/functions/v1/credit-analysis', async route => {
-        await route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: JSON.stringify({
-            status: 'Done',
-            score: 600,
-          })
-        })
-      })
+      await app.checkout.mockCreditAnalysis(600)
 
       // Arrange
       // 1. Acessar a página principal e navegar para o configurador
-      await page.goto('/')
-      await page.getByRole('link', { name: /Configure Agora/i }).click()
+      await app.configurator.openFromHome()
 
       // 2. Selecionar opções padrão e ir para o checkout
       await app.configurator.expectTotalPrice(customer.totalPrice)
@@ -256,7 +235,7 @@ test.describe('Checkout', () => {
       await app.checkout.submit()
 
       // Assert
-      await expect(page).toHaveURL(/\/success/)
+      await app.checkout.expectSuccessPage()
       await expect(page.getByRole('heading', { name: 'Pedido em Análise!' })).toBeVisible()
 
       // Obter o ID do pedido
@@ -271,7 +250,7 @@ test.describe('Checkout', () => {
       await app.orderLockup.validateStatusBadge('EM_ANALISE')
     })
 
-    test('deve reprovar automaticamente o credito quando o score do CPF for menor ou igual a 500 no financiamento', async ({ page, app }) => {
+    test('deve reprovar o crédito quando o score do CPF for menor ou igual a 500 no financiamento sem entrada', async ({ page, app }) => {
 
       const customer = {
         name: 'Mariana',
@@ -286,21 +265,11 @@ test.describe('Checkout', () => {
 
       await deleteOrderByDocument(customer.document)
 
-      await page.route('**/functions/v1/credit-analysis', async route => {
-        await route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: JSON.stringify({
-            status: 'Done',
-            score: 500,
-          })
-        })
-      })
+      await app.checkout.mockCreditAnalysis(500)
 
       // Arrange
       // 1. Acessar a página principal e navegar para o configurador
-      await page.goto('/')
-      await page.getByRole('link', { name: /Configure Agora/i }).click()
+      await app.configurator.openFromHome()
 
       // 2. Selecionar opções padrão e ir para o checkout
       await app.configurator.expectTotalPrice(customer.totalPrice)
@@ -319,7 +288,7 @@ test.describe('Checkout', () => {
       await app.checkout.submit()
 
       // Assert
-      await expect(page).toHaveURL(/\/success/)
+      await app.checkout.expectSuccessPage()
       await expect(page.getByRole('heading', { name: 'Crédito Reprovado' })).toBeVisible()
 
       // Obter o ID do pedido
@@ -334,7 +303,7 @@ test.describe('Checkout', () => {
       await app.orderLockup.validateStatusBadge('REPROVADO')
     })
 
-    test('deve reprovar automaticamente o credito quando o score do CPF for menor ou igual a 500 com entrada inferior a 50% no financiamento', async ({ page, app }) => {
+    test('deve reprovar o crédito quando o score do CPF for menor ou igual a 500 no financiamento com entrada menor que 50%', async ({ page, app }) => {
 
       const customer = {
         name: 'Fernanda',
@@ -351,21 +320,11 @@ test.describe('Checkout', () => {
 
       await deleteOrderByDocument(customer.document)
 
-      await page.route('**/functions/v1/credit-analysis', async route => {
-        await route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: JSON.stringify({
-            status: 'Done',
-            score: 500,
-          })
-        })
-      })
+      await app.checkout.mockCreditAnalysis(500)
 
       // Arrange
       // 1. Acessar a página principal e navegar para o configurador
-      await page.goto('/')
-      await page.getByRole('link', { name: /Configure Agora/i }).click()
+      await app.configurator.openFromHome()
 
       // 2. Selecionar opções padrão e ir para o checkout
       await app.configurator.expectTotalPrice(customer.totalPrice)
@@ -377,10 +336,6 @@ test.describe('Checkout', () => {
       await app.checkout.selectStore(customer.store)
 
       await app.checkout.selectPaymentMethod(customer.paymentMethod)
-
-      // Entrada inferior a 50% do valor do veículo
-      // Veículo: R$ 40.000,00
-      // Entrada: R$ 10.000,00 (25%)
       await app.checkout.fillDownPayment(customer.downPayment)
 
       await app.checkout.expectSummaryTotal('R$ 30.600,00')
@@ -390,7 +345,7 @@ test.describe('Checkout', () => {
       await app.checkout.submit()
 
       // Assert
-      await expect(page).toHaveURL(/\/success/)
+      await app.checkout.expectSuccessPage()
       await expect(page.getByRole('heading', { name: 'Crédito Reprovado' })).toBeVisible()
 
       // Obter o ID do pedido
@@ -403,6 +358,118 @@ test.describe('Checkout', () => {
       // Buscar o pedido e validar o status "REPROVADO"
       await app.orderLockup.searchOrder(orderId)
       await app.orderLockup.validateStatusBadge('REPROVADO')
+    })
+
+
+    test('deve aprovar o crédito quando o score do CPF for menor ou igual a 500 no financiamento com entrada igual a 50%', async ({ page, app }) => {
+
+      const customer = {
+        name: 'Richard',
+        lastname: 'Fortus',
+        email: 'richard@gmail.com',
+        document: '39434745004',
+        phone: '(11) 99999-9999',
+        store: 'Velô Paulista',
+        paymentMethod: 'Financiamento',
+        totalPrice: 'R$ 40.000,00',
+        downPayment: '20000'
+      }
+
+      await deleteOrderByDocument(customer.document)
+
+      await app.checkout.mockCreditAnalysis(450)
+
+
+      // Arrange
+      // 1. Acessar a página principal e navegar para o configurador
+      await app.configurator.openFromHome()
+
+      // 2. Selecionar opções padrão e ir para o checkout
+      await app.configurator.expectTotalPrice(customer.totalPrice)
+      await app.configurator.finishConfiguration()
+      await app.checkout.expectLoaded()
+
+      // 3. Preencher dados de checkout
+      await app.checkout.fillCustomerData(customer)
+      await app.checkout.selectStore(customer.store)
+
+      await app.checkout.selectPaymentMethod(customer.paymentMethod)
+      await app.checkout.fillDownPayment(customer.downPayment)
+
+      await app.checkout.expectSummaryTotal('R$ 20.400,00')
+      await app.checkout.acceptTerms()
+
+      // Act
+      await app.checkout.submit()
+
+      // Assert
+      await app.checkout.expectSuccessPage()
+      await expect(page.getByRole('heading', { name: 'Pedido Aprovado!' })).toBeVisible()
+
+      // Obter o ID do pedido
+      const orderId = await page.getByTestId('order-id').innerText()
+
+      // Navegar para consulta de pedidos
+      await page.getByTestId('goto-consultar').click()
+      await expect(page.getByRole('heading', { name: 'Consultar Pedido' })).toBeVisible()
+
+      // Buscar o pedido e validar o status "REPROVADO"
+      await app.orderLockup.searchOrder(orderId)
+      await app.orderLockup.validateStatusBadge('APROVADO')
+    })
+    test('deve aprovar o crédito quando o score do CPF for menor ou igual a 500 no financiamento com entrada mair que 50%', async ({ page, app }) => {
+
+      const customer = {
+        name: 'Axl',
+        lastname: 'Rose',
+        email: 'alx@gnr.com',
+        document: '79327557000',
+        phone: '(11) 99999-9999',
+        store: 'Velô Paulista',
+        paymentMethod: 'Financiamento',
+        totalPrice: 'R$ 40.000,00',
+        downPayment: '30000'
+      }
+      await deleteOrderByDocument(customer.document)
+
+      await app.checkout.mockCreditAnalysis(300)
+
+      // Arrange
+      // 1. Acessar a página principal e navegar para o configurador
+      await app.configurator.openFromHome()
+
+      // 2. Selecionar opções padrão e ir para o checkout
+      await app.configurator.expectTotalPrice(customer.totalPrice)
+      await app.configurator.finishConfiguration()
+      await app.checkout.expectLoaded()
+
+      // 3. Preencher dados de checkout
+      await app.checkout.fillCustomerData(customer)
+      await app.checkout.selectStore(customer.store)
+
+      await app.checkout.selectPaymentMethod(customer.paymentMethod)
+      await app.checkout.fillDownPayment(customer.downPayment)
+
+      await app.checkout.expectSummaryTotal('R$ 10.200,00')
+      await app.checkout.acceptTerms()
+
+      // Act
+      await app.checkout.submit()
+
+      // Assert
+      await app.checkout.expectSuccessPage()
+      await expect(page.getByRole('heading', { name: 'Pedido Aprovado!' })).toBeVisible()
+
+      // Obter o ID do pedido
+      const orderId = await page.getByTestId('order-id').innerText()
+
+      // Navegar para consulta de pedidos
+      await page.getByTestId('goto-consultar').click()
+      await expect(page.getByRole('heading', { name: 'Consultar Pedido' })).toBeVisible()
+
+      // Buscar o pedido e validar o status "APROVADO"
+      await app.orderLockup.searchOrder(orderId)
+      await app.orderLockup.validateStatusBadge('APROVADO')
     })
 
   })

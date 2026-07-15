@@ -24,6 +24,11 @@ export function createConfiguratorActions(page: Page) {
       await page.goto('/configure')
     },
 
+    async openFromHome(): Promise<void> {
+      await page.goto('/')
+      await page.getByRole('link', { name: /Configure Agora|Configure o Seu/i }).first().click()
+    },
+
     /**
      * Garante rodas Aero, sem opcionais e preço base (checkpoint no estado inicial).
      */
