@@ -17,6 +17,12 @@ export function createConfiguratorActions(page: Page) {
     }),
   }
 
+  async function expectCarImageSrc(src: string | RegExp): Promise<void> {
+    const preview = page.getByRole('img', { name: /^Velô Sprint - / })
+    await expect(preview).toBeVisible()
+    await expect(preview).toHaveAttribute('src', src)
+  }
+
   return {
     elements,
 
@@ -65,14 +71,10 @@ export function createConfiguratorActions(page: Page) {
       await expect(priceLocator).toBeVisible()
     },
 
-    async expectCarPreviewSrc(src: string): Promise<void> {
-      const preview = page.getByRole('img', { name: /^Velô Sprint - / })
-      await expect(preview).toBeVisible()
-      await expect(preview).toHaveAttribute('src', src)
-    },
+    expectCarImageSrc,
 
     async expectSportPreviewVisible(): Promise<void> {
-      await expect(page.getByRole('img', { name: /sport/i })).toBeVisible()
+      await expectCarImageSrc(/sport-wheels/)
     },
   }
 }

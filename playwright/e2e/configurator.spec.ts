@@ -31,10 +31,7 @@ test.describe('Configuração do Veículo', () => {
     await expectTotalPrice('R$ 40.000,00')
 
     await expect(elements.previewMidnightBlackAero).toBeVisible()
-    await expect(elements.previewMidnightBlackAero).toHaveAttribute(
-      'src',
-      '/src/assets/midnight-black-aero-wheels.png',
-    )
+    await app.configurator.expectCarImageSrc(/midnight-black-aero-wheels/)
   })
 
   test('deve atualizar o preço corretamente ao alterar as rodas', async ({ app }) => {
