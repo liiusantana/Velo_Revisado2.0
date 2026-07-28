@@ -14,13 +14,13 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
 
 
-//Tempo máximo para cada teste completo (30 segundos é o padrão)
-timeout: 60_000, // 60 segundos
+  //Tempo máximo para cada teste completo (30 segundos é o padrão)
+  timeout: 60_000, // 60 segundos
 
-//Tempo máximo para assertions (toBeVisible(), toHaveText(), etc.) 5 segundos é o padrão
-expect: {
-  timeout: 5_000, // 5 segundos, NÃO VALE A PENA AUMETAR PORQUE O TESTE PODE FICAR LENTO NO TEMPO DE EXECUÇÃO, VALE A PENA USAR O TIMEOUT EXPLICITO
-},
+  //Tempo máximo para assertions (toBeVisible(), toHaveText(), etc.) 5 segundos é o padrão
+  expect: {
+    timeout: 5_000, // 5 segundos, NÃO VALE A PENA AUMETAR PORQUE O TESTE PODE FICAR LENTO NO TEMPO DE EXECUÇÃO, VALE A PENA USAR O TIMEOUT EXPLICITO
+  },
 
 
   testDir: './playwright/e2e',
@@ -37,7 +37,7 @@ expect: {
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('')`. */
-     baseURL: 'http://localhost:5173',
+    baseURL: 'http://localhost:5173',
 
     /* Chrome headed localmente para debug; headless no CI (docs/prompts/prompt-qa-playwright-automator.md). */
     headless: !!process.env.CI,
@@ -47,7 +47,7 @@ expect: {
 
     // Tempo máximo para ações inerativas (click(), fill(), etc.)
     // Quando o valor é 0, herda o limite do timeout geral do teste
-    actionTimeout: 5_000, 
+    actionTimeout: 5_000,
 
     // Tempo máximo para navegação como (goto(), WaitForURL(), etc.)
     // Quando o valor é 0, herda o limite do timeout geral do teste
@@ -93,9 +93,9 @@ expect: {
   ],
 
   /* Run your local dev server before starting the tests */
-  // webServer: {
-  //   command: 'npm run start',
-  //   url: 'http://localhost:3000',
-  //   reuseExistingServer: !process.env.CI,
-  // },
+  webServer: {
+    command: 'yarn dev',
+    url: 'http://localhost:5173',
+    reuseExistingServer: !process.env.CI,
+  },
 });

@@ -124,6 +124,12 @@ test.describe('Checkout', () => {
 
   test.describe('Pagamento e Confirmação', () => {
 
+    // Arrange
+    // 1. Acessar a página principal e navegar para o configurador
+    test.beforeEach(async ({ app }) => {
+      await app.hero.open()
+    })
+
     test.beforeAll(async () => {
       await deleteOrderByDocument(testData.novoPedido.customer.document)
     })
@@ -133,9 +139,6 @@ test.describe('Checkout', () => {
       const orderData = testData.novoPedido
 
       // Arrange
-      // 1. Acessar a página principal e navegar para o configurador
-      await app.configurator.openFromHome()
-
       // 2. Selecionar opções padrão e ir para o checkout
       await app.configurator.ensureBaseState()
       await app.configurator.finishConfiguration()
@@ -155,8 +158,7 @@ test.describe('Checkout', () => {
       await app.checkout.submit()
 
       // Assert
-      await app.checkout.expectSuccessPage()
-      await expect(page.getByText('Pedido Aprovado!')).toBeVisible()
+      await app.checkout.expectResult('Pedido Aprovado!')
     })
 
     test('deve aprovar automaticamente o credito quando o score do CPF for maior que 700 no financiamento', async ({ page, app }) => {
@@ -174,12 +176,9 @@ test.describe('Checkout', () => {
 
       await deleteOrderByDocument(customer.document)
 
-      await app.checkout.mockCreditAnalysis(710)
+      await app.mock.creditAnalysis(710)
 
       // Arrange
-      // 1. Acessar a página principal e navegar para o configurador
-      await app.configurator.openFromHome()
-
       // 2. Selecionar opções padrão e ir para o checkout
       await app.configurator.expectTotalPrice(customer.totalPrice)
       await app.configurator.finishConfiguration()
@@ -195,8 +194,7 @@ test.describe('Checkout', () => {
       await app.checkout.submit()
 
       // Assert
-      await app.checkout.expectSuccessPage()
-      await expect(page.getByRole('heading', { name: 'Pedido Aprovado!' })).toBeVisible()
+      await app.checkout.expectResult('Pedido Aprovado!')
     })
 
     test('deve encaminhar para análise de crédito quando o score do CPF for entre 501 e 700 no financiamento', async ({ page, app }) => {
@@ -214,12 +212,9 @@ test.describe('Checkout', () => {
 
       await deleteOrderByDocument(customer.document)
 
-      await app.checkout.mockCreditAnalysis(600)
+      await app.mock.creditAnalysis(600)
 
       // Arrange
-      // 1. Acessar a página principal e navegar para o configurador
-      await app.configurator.openFromHome()
-
       // 2. Selecionar opções padrão e ir para o checkout
       await app.configurator.expectTotalPrice(customer.totalPrice)
       await app.configurator.finishConfiguration()
@@ -235,8 +230,7 @@ test.describe('Checkout', () => {
       await app.checkout.submit()
 
       // Assert
-      await app.checkout.expectSuccessPage()
-      await expect(page.getByRole('heading', { name: 'Pedido em Análise!' })).toBeVisible()
+      await app.checkout.expectResult('Pedido em Análise!')
 
       // Obter o ID do pedido
       const orderId = await page.getByTestId('order-id').innerText()
@@ -265,12 +259,9 @@ test.describe('Checkout', () => {
 
       await deleteOrderByDocument(customer.document)
 
-      await app.checkout.mockCreditAnalysis(500)
+      await app.mock.creditAnalysis(500)
 
       // Arrange
-      // 1. Acessar a página principal e navegar para o configurador
-      await app.configurator.openFromHome()
-
       // 2. Selecionar opções padrão e ir para o checkout
       await app.configurator.expectTotalPrice(customer.totalPrice)
       await app.configurator.finishConfiguration()
@@ -288,8 +279,7 @@ test.describe('Checkout', () => {
       await app.checkout.submit()
 
       // Assert
-      await app.checkout.expectSuccessPage()
-      await expect(page.getByRole('heading', { name: 'Crédito Reprovado' })).toBeVisible()
+      await app.checkout.expectResult('Pedido Reprovado!')
 
       // Obter o ID do pedido
       const orderId = await page.getByTestId('order-id').innerText()
@@ -320,12 +310,9 @@ test.describe('Checkout', () => {
 
       await deleteOrderByDocument(customer.document)
 
-      await app.checkout.mockCreditAnalysis(500)
+      await app.mock.creditAnalysis(500)
 
       // Arrange
-      // 1. Acessar a página principal e navegar para o configurador
-      await app.configurator.openFromHome()
-
       // 2. Selecionar opções padrão e ir para o checkout
       await app.configurator.expectTotalPrice(customer.totalPrice)
       await app.configurator.finishConfiguration()
@@ -345,8 +332,7 @@ test.describe('Checkout', () => {
       await app.checkout.submit()
 
       // Assert
-      await app.checkout.expectSuccessPage()
-      await expect(page.getByRole('heading', { name: 'Crédito Reprovado' })).toBeVisible()
+      await app.checkout.expectResult('Pedido Reprovado!')
 
       // Obter o ID do pedido
       const orderId = await page.getByTestId('order-id').innerText()
@@ -377,13 +363,10 @@ test.describe('Checkout', () => {
 
       await deleteOrderByDocument(customer.document)
 
-      await app.checkout.mockCreditAnalysis(450)
+      await app.mock.creditAnalysis(450)
 
 
       // Arrange
-      // 1. Acessar a página principal e navegar para o configurador
-      await app.configurator.openFromHome()
-
       // 2. Selecionar opções padrão e ir para o checkout
       await app.configurator.expectTotalPrice(customer.totalPrice)
       await app.configurator.finishConfiguration()
@@ -403,8 +386,7 @@ test.describe('Checkout', () => {
       await app.checkout.submit()
 
       // Assert
-      await app.checkout.expectSuccessPage()
-      await expect(page.getByRole('heading', { name: 'Pedido Aprovado!' })).toBeVisible()
+      await app.checkout.expectResult('Pedido Aprovado!')
 
       // Obter o ID do pedido
       const orderId = await page.getByTestId('order-id').innerText()
@@ -432,12 +414,9 @@ test.describe('Checkout', () => {
       }
       await deleteOrderByDocument(customer.document)
 
-      await app.checkout.mockCreditAnalysis(300)
+      await app.mock.creditAnalysis(300)
 
       // Arrange
-      // 1. Acessar a página principal e navegar para o configurador
-      await app.configurator.openFromHome()
-
       // 2. Selecionar opções padrão e ir para o checkout
       await app.configurator.expectTotalPrice(customer.totalPrice)
       await app.configurator.finishConfiguration()
@@ -457,8 +436,7 @@ test.describe('Checkout', () => {
       await app.checkout.submit()
 
       // Assert
-      await app.checkout.expectSuccessPage()
-      await expect(page.getByRole('heading', { name: 'Pedido Aprovado!' })).toBeVisible()
+      await app.checkout.expectResult('Pedido Aprovado!')
 
       // Obter o ID do pedido
       const orderId = await page.getByTestId('order-id').innerText()
