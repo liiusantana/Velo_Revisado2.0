@@ -37,7 +37,7 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('')`. */
-    baseURL: 'https://velo-revisado2-0-6q6regc31-livia-anjos.vercel.app',
+    baseURL: process.env.BASE_URL || 'http://localhost:5173',
 
     /* Chrome headed localmente para debug; headless no CI (docs/prompts/prompt-qa-playwright-automator.md). */
     headless: !!process.env.CI,
