@@ -45,52 +45,56 @@ jobs:
       - name: Run unit tests
         run: yarn test
   
-  build-and-deploy:
-    name: Build $ Deploy Vercel Peview
+    build-and-deploy:
+    name: Build & Deploy Vercel Preview
     needs: [unit-tests]
     runs-on: ubuntu-latest
+
     outputs:
       deployment_url: ${{ steps.deploy.outputs.deployment-url }}
-    
+
     steps:
       # Obtém o código-fonte do repositório
       - name: Checkout repository
         uses: actions/checkout@v6.1.0
 
-      # Configura a versão do Node.js utilizada pelo projeto
+      # Configura a versão do Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v6.5.0
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      # Habilita o Corepack para gerenciamento do Yarn
+      # Habilita o Corepack
       - name: Enable Corepack
         run: corepack enable
 
-      # Instala as dependências do projeto
+      # Instala as dependências
       - name: Install dependencies
         run: yarn install
 
-       # Cria o vínculo do projeto com a Vercel
+      # Cria o vínculo do projeto com a Vercel
       - name: Configure Vercel Project
         run: |
           mkdir -p .vercel
           echo "{\"orgId\":\"$VERCEL_ORG_ID\",\"projectId\":\"$VERCEL_PROJECT_ID\"}" > .vercel/project.json
 
-      # Obter as configurações do vercel
+      # Obtém as configurações da Vercel
+      - name: Pull Vercel Config
+        run: |
+          yarn vercel pull --yes \
+            --environment=preview \
+            --token="$VERCEL_TOKEN" \
+            --scope="$VERCEL_SCOPE"
+
+      # Build para a Vercel
       - name: Build Vercel
         run: |
           yarn vercel build \
             --token="$VERCEL_TOKEN" \
             --scope="$VERCEL_SCOPE"
 
-      # Build para o Vercel
-      - name: Build Vercel
-        run: yarn vercel build --token=$VERCEL_TOKEN \
-
-
-      # Deploy preview no vercel
-      - name: Deploy preview
+      # Deploy Preview na Vercel
+      - name: Deploy Preview
         id: deploy
         run: |
           URL=$(yarn --silent vercel deploy --prebuilt \
