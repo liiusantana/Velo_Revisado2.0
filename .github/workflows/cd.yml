@@ -80,7 +80,7 @@ jobs:
       # Obter as configurações do vercel
       - name: Pull Vercel Config
         run: |
-          yarn vercel pull --yes \
+          yarn vercel pull --debug --yes \
           --environment=preview \
           --token=$VERCEL_TOKEN
           --scope="$VERCEL_SCOPE"
