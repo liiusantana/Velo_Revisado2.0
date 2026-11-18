@@ -78,24 +78,25 @@ jobs:
           echo "{\"orgId\":\"$VERCEL_ORG_ID\",\"projectId\":\"$VERCEL_PROJECT_ID\"}" > .vercel/project.json
 
       # Obter as configurações do vercel
-      - name: Pull Vercel Config
+      - name: Build Vercel
         run: |
-          yarn vercel pull --debug --yes \
-          --environment=preview \
-          --token=$VERCEL_TOKEN
-          --scope="$VERCEL_SCOPE"
+          yarn vercel build \
+            --token="$VERCEL_TOKEN" \
+            --scope="$VERCEL_SCOPE"
 
       # Build para o Vercel
       - name: Build Vercel
-        run: yarn vercel build --token=$VERCEL_TOKEN
+        run: yarn vercel build --token=$VERCEL_TOKEN \
+
 
       # Deploy preview no vercel
       - name: Deploy preview
         id: deploy
         run: |
-          URL=$(yarn  --silent vercel deploy --prebuilt \
-          --target=preview \
-          --token=$VERCEL_TOKEN)
+          URL=$(yarn --silent vercel deploy --prebuilt \
+            --target=preview \
+            --token="$VERCEL_TOKEN" \
+            --scope="$VERCEL_SCOPE")
           echo "deployment-url=$URL" >> $GITHUB_OUTPUT
 
   e2e-tests:
