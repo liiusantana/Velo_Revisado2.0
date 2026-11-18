@@ -71,12 +71,19 @@ jobs:
       - name: Install dependencies
         run: yarn install
 
+       # Cria o vínculo do projeto com a Vercel
+      - name: Configure Vercel Project
+        run: |
+          mkdir -p .vercel
+          echo "{\"orgId\":\"$VERCEL_ORG_ID\",\"projectId\":\"$VERCEL_PROJECT_ID\"}" > .vercel/project.json
+
       # Obter as configurações do vercel
       - name: Pull Vercel Config
         run: |
           yarn vercel pull --yes \
           --environment=preview \
           --token=$VERCEL_TOKEN
+          --scope="$VERCEL_SCOPE"
 
       # Build para o Vercel
       - name: Build Vercel
